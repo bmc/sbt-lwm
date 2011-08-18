@@ -1,0 +1,9 @@
+project/boot/
+project/target/
+src/testproject/project/boot/
+src/testproject/project/plugins/project/
+src/testproject/project/plugins/target/
+src/testproject/project/target/
+src/testproject/src/style.css
+src/testproject/target/
+target/
