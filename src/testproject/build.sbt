@@ -17,6 +17,8 @@ sourceFiles in LWM <++= baseDirectory { d =>
     (d / "src" * "*.textile").get
 }
 
+cssFile in LWM <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+
 logLevel := Level.Debug
 
 targetDirectory in LWM <<= baseDirectory(_ / "target")

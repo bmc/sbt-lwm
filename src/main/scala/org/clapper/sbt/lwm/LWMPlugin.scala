@@ -146,8 +146,11 @@ object LWM extends Plugin
         {
             (sources, target, base, flatten, cssFile, encoding, streams) =>
 
-            val cssSource = cssFile map {Source fromFile _}
-            sources map translateSource(target, base, cssSource, flatten,
+            val css = cssFile.map
+            {
+                f => Source.fromFile(f).getLines.mkString("\n")
+            }
+            sources map translateSource(target, base, css, flatten,
                                         encoding, streams.log)
         }
     }
@@ -158,7 +161,7 @@ object LWM extends Plugin
 
     private def translateSource(targetDirectory: File,
                                 baseDirectory: File,
-                                css: Option[Source],
+                                css: Option[String],
                                 flatten: Boolean,
                                 encoding: String,
                                 log: Logger)
@@ -174,16 +177,14 @@ object LWM extends Plugin
         log.info("Translating %s document \"%s\" to \"%s\"\n"
                  format (parser.markupType.name, sourceFile, target))
 
-try {
         val document = new Document(Source.fromFile(sourceFile))
         val title = document.frontMatter.getOrElse("title", "")
+        val cssSource = css map {Source.fromString(_)}
         val html = parser.parseToHTMLDocument(document.contentSource,
-                                              title, css, encoding)
+                                              title, cssSource, encoding)
         val out = new FileWriter(target)
         out.write(html)
         out.close()
-} catch { case e: Throwable => e.printStackTrace(); throw e }
-
     }
 
     private def zapExtension(path: String): String =
