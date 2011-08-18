@@ -5,7 +5,7 @@ layout: withTOC
 
 # Overview
 
-[sbt-lwm][] (**_L_** ight **_W_** eight **_M_** arkup) is an [SBT][] 0.10.x
+[sbt-lwm][] (**_L_**ight **_W_**eight **_M_**arkup) is an [SBT][] 0.10.x
 plugin that converts lightweight markup documents to HTML. It currently
 supports [Textile][] and [Markdown][].
 
@@ -203,3 +203,4 @@ request. Along with any patch you send:
 [PegDown]: http://pegdown.org
 [Mylyn]: http://www.eclipse.org/mylyn/
 [cascading style sheet]: http://www.w3.org/Style/CSS/
+[FuseSource WikiText fork]: https://github.com/fusesource/wikitext
