@@ -79,6 +79,26 @@ or, more succinctly:
         (dir / "src" ** "*.markdown").get
     }
 
+## Front Matter
+
+Each source file can optionally start with *front matter*, metadata about
+the document. The front matter must be separated from the rest of the
+document by a single line like this:
+
+    %%%
+    
+Front matter consists of one or more *item: value* pairs. Currently, the
+only supported item is *title*. To set an individual title for a document,
+specify the title in the front matter, like so:
+
+    title: A very cool user's guide
+    %%%
+
+    # My User's Guide
+
+If the *title* element is omitted, or if the front-matter is missing, then
+the resulting `<title>` HTML element will be empty.
+
 ---
 
 **`cssFile`**
