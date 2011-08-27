@@ -1,0 +1,1 @@
+* Now published for Scala 2.8.1 and 2.9.0-1.

@@ -11,7 +11,7 @@
 
 name := "sbt-lwm"
 
-version := "0.1"
+version := "0.1.1"
 
 sbtPlugin := true
 
@@ -23,6 +23,8 @@ scalaVersion := "2.8.1"
 // Additional compiler options and plugins
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
+
+crossScalaVersions := Seq("2.8.1", "2.9.0-1")
 
 // ---------------------------------------------------------------------------
 // Posterous-SBT
@@ -42,7 +44,7 @@ libraryDependencies <<= (sbtVersion, scalaVersion, libraryDependencies) { (sbtv,
 // External deps
 libraryDependencies ++= Seq(
     "org.clapper" %% "grizzled-scala" % "1.0.7",
-    "org.clapper" %% "markwrap" % "0.4"
+    "org.clapper" %% "markwrap" % "0.4.1"
 )
 
 // ---------------------------------------------------------------------------
@@ -55,6 +57,8 @@ publishTo <<= version {(v: String) =>
 }
 
 publishMavenStyle := true
+
+publishArtifact in packageDoc := false
 
 credentials += Credentials(Path.userHome / "src" / "mystuff" / "scala" /
                            "nexus.scala-tools.org.properties")
