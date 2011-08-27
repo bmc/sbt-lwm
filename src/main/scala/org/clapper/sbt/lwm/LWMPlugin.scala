@@ -182,6 +182,25 @@ object LWM extends Plugin
         val cssSource = css map {Source.fromString(_)}
         val html = parser.parseToHTMLDocument(document.contentSource,
                                               title, cssSource, encoding)
+        val parentDir = new File(target.getParent)
+        if ((parentDir.exists) && (! parentDir.isDirectory))
+        {
+            throw new Exception("Target directory \"%s\" of file \"%s\" " +
+                                "exists, but is not a directory."
+                                format (parentDir, target))
+        }
+
+        if (! parentDir.exists)
+        {
+            if (! parentDir.mkdirs())
+            {
+                throw new Exception("Cannot make parent directory \"%s\" " +
+                                    "of file \"%s\"." format
+                                    (parentDir, target))
+            }
+        }
+            
+
         val out = new FileWriter(target)
         out.write(html)
         out.close()
