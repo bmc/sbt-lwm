@@ -27,10 +27,10 @@ an older version (with fewer features and a different variable syntax)
 First, within your SBT project, create `project/plugins/build.sbt` (if it
 doesn't already exist) and add the following:
 
-    // The plugin is only published for 2.8.1
+    // The plugin is only published for 2.8.1 and 2.9.0-1
     libraryDependencies <<= (scalaVersion, libraryDependencies) { (scv, deps) =>
-        if (scv == "2.8.1")
-            deps :+ "org.clapper" %% "sbt-lwm" % "0.1"
+        if ((scv == "2.8.1") || (scv == "2.9.0-1"))
+            deps :+ "org.clapper" %% "sbt-lwm" % "0.1.1"
         else
             deps
     }
@@ -68,9 +68,9 @@ For instance, suppose you want to process all Markdown files within your
 If you also want to apply the edits to all files ending in ".markdown"
 (perhaps because you're not consistent in your extensions), use either:
 
-    sourceFiles in LWM <++= baseDirectory(d => (d / "src" * "*.md").get)
+    sourceFiles in LWM <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    sourceFiles in LWM <++= baseDirectory(d => (d / "src" * "*.markdown").get)
+    sourceFiles in LWM <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
     
 or, more succinctly:
 
