@@ -30,7 +30,7 @@ doesn't already exist) and add the following:
     // The plugin is only published for 2.8.1 and 2.9.0-1
     libraryDependencies <<= (scalaVersion, libraryDependencies) { (scv, deps) =>
         if ((scv == "2.8.1") || (scv == "2.9.0-1"))
-            deps :+ "org.clapper" %% "sbt-lwm" % "0.1.1"
+            deps :+ "org.clapper" %% "sbt-lwm" % "0.1.3"
         else
             deps
     }
@@ -41,9 +41,24 @@ Next, in your main project `build.sbt` file, add:
 
 Now the plugin is available to your SBT builds.
 
-# Settings
+# Settings and Tasks
 
-The plugin provides the following new settings.
+The plugin provides the following new settings and tasks.
+
+**Note**: All settings and tasks are in an `LWM` namespace, to avoid import
+clashes with identically named settings from other plugins. The pattern for
+accessing settings in this plugin is:
+
+    LWM.settingName in LWM.Config <<= ...
+
+Task access is similar.
+
+`LWM` appears twice, which is regrettable; however, until [SBT][] supports
+proper namespaces, this appears to be the best way to isolate the plugin's
+definitions from clashing with other plugins, when multiple plugins are
+used (and, thus, automatically imported) into a `build.sbt` file.
+
+## Settings
 
 ---
 
@@ -63,23 +78,23 @@ The supported extensions are:
 For instance, suppose you want to process all Markdown files within your
 "src" tree. You might set `sourceFiles` like this:
 
-    sourceFiles in LWM <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
 If you also want to apply the edits to all files ending in ".markdown"
 (perhaps because you're not consistent in your extensions), use either:
 
-    sourceFiles in LWM <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    sourceFiles in LWM <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
+    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
     
 or, more succinctly:
 
-    sourceFiles in LWM <++= baseDirectory { dir =>
-        (dir / "src" ** "*.md").get ++
-        (dir / "src" ** "*.markdown").get
+    LWM.sourceFiles in LWM.Config <++= baseDirectory { dir =>
+      (dir / "src" ** "*.md").get ++
+      (dir / "src" ** "*.markdown").get
     }
 
-## Front Matter
+### Front Matter
 
 Each source file can optionally start with *front matter*, metadata about
 the document. The front matter must be separated from the rest of the
@@ -111,7 +126,7 @@ to a file. By default, no CSS file is included in the generated HTML.
 
 Example:
 
-    cssFile in LWM <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+    LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
 
 
 ---
@@ -123,7 +138,7 @@ Example:
 The directory to which to write the HTML versions of the source files.
 For example:
 
-    targetDirectory in LWM <<= baseDirectory(_ / "target")
+    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
 
 See also `flatten`, below.
 
@@ -146,20 +161,20 @@ An example will help clarify. Consider the following file tree:
 Let's assume you're processing all the files ending in ".md", into the *target*
 directory.
 
-    sourceFiles in LWM <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    targetDirectory in LWM <<= baseDirectory(_ / "target")
+    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
     
 If you also set:
 
-    flatten in LWM := true
+    LWM.flatten in LWM.Config := true
 
 the edit operation will put all the HTML versions of all three files
 directly in the *target* directory.
 
 If, instead, you set:
 
-    flatten in LWM := false
+    LWM.flatten in LWM.Config := false
 
 you'll end up with the following edited versions:
 
@@ -176,7 +191,7 @@ you'll end up with the following edited versions:
 The encoding of the source file and, hence, the resulting HTML. Defaults
 to "UTF-8".
 
-# Tasks
+## Tasks
 
 *sbt-lwm* provides two new SBT tasks.
 
