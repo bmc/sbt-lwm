@@ -40,50 +40,42 @@ package org.clapper.sbt.lwm
 import scala.io.Source
 import scala.annotation.tailrec
 
-class Document(source: Source)
-{
-    private val (front, doc) = splitSource(source)
-    val frontMatter: Map[String,String] = parseFrontMatter(front)
-    val content = doc mkString "\n"
+class Document(source: Source) {
+  private val (front, doc) = splitSource(source)
+  val frontMatter: Map[String,String] = parseFrontMatter(front)
+  val content = doc mkString "\n"
 
-    // -----------------------------------------------------------------
-    // Public Methods
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // Public Methods
+  // -----------------------------------------------------------------
 
-    def contentSource = Source.fromString(content)
+  def contentSource = Source.fromString(content)
 
-    // -----------------------------------------------------------------
-    // Private Utility Methods
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // Private Utility Methods
+  // -----------------------------------------------------------------
 
-    private def parseFrontMatter(lines: List[String]): Map[String, String] =
-    {
-        val re = """^([^:\s]+)\s*:\s*(.*)$""".r
+  private def parseFrontMatter(lines: List[String]): Map[String, String] = {
+    val re = """^([^:\s]+)\s*:\s*(.*)$""".r
 
-        def oops(line: String) =
-            throw new Exception("Bad front matter line: " + line)
+    def oops(line: String) =
+      throw new Exception("Bad front matter line: " + line)
 
-        Map[String, String]() ++ 
-        lines.map
-        {
-            line => 
-
-            re.findFirstMatchIn(line).map {m => (m.group(1), m.group(2))}.
-            getOrElse(oops(line))
-        }
+    Map[String, String]() ++ lines.map {line => 
+      re.findFirstMatchIn(line).map {m => (m.group(1), m.group(2))}.
+         getOrElse(oops(line))
     }
+  }
 
-    private def splitSource(source: Source): (List[String], List[String]) =
-    {
-        val lines = source.getLines.toList
-        val i = lines.indexOf("%%%")
+  private def splitSource(source: Source): (List[String], List[String]) = {
+    val lines = source.getLines.toList
+    val i = lines.indexOf("%%%")
 
-        if (i == -1)
-            (Nil, lines)
-        else
-        {
-            val (before, after) = lines.splitAt(i)
-            (before, after drop 1)
-        }
+    if (i == -1)
+      (Nil, lines)
+    else {
+      val (before, after) = lines.splitAt(i)
+      (before, after drop 1)
     }
+  }
 }

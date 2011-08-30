@@ -54,186 +54,169 @@ import grizzled.file.{util => FileUtil}
  * files in several lightweight markup languages (Textile, Markdown)
  * to HTML.
  */
-object LWM extends Plugin
-{
-    // -----------------------------------------------------------------
-    // Constants
-    // -----------------------------------------------------------------
+object LWM extends Plugin {
+  // -----------------------------------------------------------------
+  // Constants
+  // -----------------------------------------------------------------
 
-    private val ExtensionPattern = """^(.*)\.[^.]+$""".r
+  private val ExtensionPattern = """^(.*)\.[^.]+$""".r
 
-    // -----------------------------------------------------------------
-    // Plugin Settings and Task Declarations
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // Plugin Settings and Task Declarations
+  // -----------------------------------------------------------------
 
-    val LWM = config("lwm") extend(Runtime)
+  val LWM = config("lwm") extend(Runtime)
 
-    // sources is a list of source files to process.
-    val sourceFiles = SettingKey[Seq[File]]("source-files",
-                                            "List of sources to transform")
+  // sources is a list of source files to process.
+  val sourceFiles = SettingKey[Seq[File]]("source-files",
+                                          "List of sources to transform")
 
-    // targetDirectory is the directory where HTML files are to be
-    // written.
-    val targetDirectory = SettingKey[File]("target-directory",
-                                           "Where to copy edited files")
+  // targetDirectory is the directory where HTML files are to be
+  // written.
+  val targetDirectory = SettingKey[File]("target-directory",
+                                         "Where to copy edited files")
 
-    // Optional CSS file to include with the translated documents.
-    val cssFile = SettingKey[Option[File]](
-        "css", "CSS file to insert, inline into generated HTML"
-    )
+  // Optional CSS file to include with the translated documents.
+  val cssFile = SettingKey[Option[File]](
+    "css", "CSS file to insert, inline into generated HTML"
+  )
 
-    val encoding = SettingKey[String]("encoding", "document encoding")
+  val encoding = SettingKey[String]("encoding", "document encoding")
 
-    // Whether or not to flatten the directory structure.
-    val flatten = SettingKey[Boolean]("flatten",
-                                      "Don't preserve source directory " +
-                                      "structure.")
+  // Whether or not to flatten the directory structure.
+  val flatten = SettingKey[Boolean]("flatten",
+                                    "Don't preserve source directory " +
+                                    "structure.")
 
-    val translate = TaskKey[Unit]("translate", "Translate the docs")
-    val clean = TaskKey[Unit]("clean", "Remove target files.")
+  val translate = TaskKey[Unit]("translate", "Translate the docs")
+  val clean = TaskKey[Unit]("clean", "Remove target files.")
 
-    val lwmSettings: Seq[sbt.Project.Setting[_]] =
+  val lwmSettings: Seq[sbt.Project.Setting[_]] =
     inConfig(LWM)(Seq(
 
-        flatten := true,
-        encoding := "UTF-8",
-        cssFile := None,
-        sourceFiles := Seq.empty[File],
+      flatten := true,
+      encoding := "UTF-8",
+      cssFile := None,
+      sourceFiles := Seq.empty[File],
 
-        targetDirectory <<= baseDirectory(_ / "target"),
+      targetDirectory <<= baseDirectory(_ / "target"),
 
-        translate <<= translateTask,
-        clean <<= cleanTask
+      translate <<= translateTask,
+      clean <<= cleanTask
     )) ++
-    inConfig(Compile)(Seq(
-        // Hook our clean into the global one.
-        clean in Global <<= (clean in LWM).identity
-    ))
+  inConfig(Compile)(Seq(
+    // Hook our clean into the global one.
+    clean in Global <<= (clean in LWM).identity
+  ))
 
-    // -----------------------------------------------------------------
-    // Public Methods
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // Public Methods
+  // -----------------------------------------------------------------
 
-    // -----------------------------------------------------------------
-    // Task Implementations
-    // -----------------------------------------------------------------
+  // -----------------------------------------------------------------
+  // Task Implementations
+  // -----------------------------------------------------------------
 
-    private def cleanTask: Initialize[Task[Unit]] =
-    {
-        (sourceFiles, targetDirectory, baseDirectory, flatten, streams) map 
-        {
-            (sourceFiles, targetDirectory, baseDirectory, flatten, streams) =>
+  private def cleanTask: Initialize[Task[Unit]] = {
+    (sourceFiles, targetDirectory, baseDirectory, flatten, streams) map  {
+      (sourceFiles, targetDirectory, baseDirectory, flatten, streams) =>
 
-            for (sourceFile <- sourceFiles)
-            {
-                val targetFile = targetFor(sourceFile,
-                                           targetDirectory,
-                                           baseDirectory,
-                                           flatten)
-                if (targetFile.exists)
-                {
-                    streams.log.debug("Deleting \"%s\"" format targetFile)
-                    targetFile.delete
-                }
-            }
+      for (sourceFile <- sourceFiles) {
+        val targetFile = targetFor(sourceFile,
+                                   targetDirectory,
+                                   baseDirectory,
+                                   flatten)
+        if (targetFile.exists) {
+          streams.log.debug("Deleting \"%s\"" format targetFile)
+          targetFile.delete
         }
+      }
+    }
+  }
+
+  private def translateTask: Initialize[Task[Unit]] = {
+    (sourceFiles, targetDirectory, baseDirectory, flatten, cssFile,
+     encoding, streams) map {
+      (sources, target, base, flatten, cssFile, encoding, streams) =>
+
+      val css = cssFile.map {
+        f => Source.fromFile(f).getLines.mkString("\n")
+      }
+      sources map translateSource(target, base, css, flatten,
+                                  encoding, streams.log)
+    }
+  }
+
+  // -----------------------------------------------------------------
+  // Private Utility Methods
+  // -----------------------------------------------------------------
+
+  private def translateSource(targetDirectory: File,
+                              baseDirectory: File,
+                              css: Option[String],
+                              flatten: Boolean,
+                              encoding: String,
+                              log: Logger)
+  (sourceFile: File): Unit = {
+    import org.clapper.markwrap.MarkWrap
+
+    val parser = MarkWrap.parserFor(sourceFile)
+    val target = targetFor(sourceFile,
+                           targetDirectory,
+                           baseDirectory,
+                           flatten)
+    log.info("Translating %s document \"%s\" to \"%s\"\n"
+             format (parser.markupType.name, sourceFile, target))
+
+    val document = new Document(Source.fromFile(sourceFile))
+    val title = document.frontMatter.getOrElse("title", "")
+    val cssSource = css map {Source.fromString(_)}
+    val html = parser.parseToHTMLDocument(document.contentSource,
+                                          title, cssSource, encoding)
+    val parentDir = new File(target.getParent)
+    if ((parentDir.exists) && (! parentDir.isDirectory)) {
+      throw new Exception("Target directory \"%s\" of file \"%s\" " +
+                          "exists, but is not a directory."
+                          format (parentDir, target))
     }
 
-    private def translateTask: Initialize[Task[Unit]] =
-    {
-        (sourceFiles, targetDirectory, baseDirectory, flatten, cssFile,
-         encoding, streams) map
-        {
-            (sources, target, base, flatten, cssFile, encoding, streams) =>
+    if (! parentDir.exists) {
+      if (! parentDir.mkdirs()) {
+        throw new Exception("Cannot make parent directory \"%s\" " +
+                            "of file \"%s\"." format
+                            (parentDir, target))
+      }
+    }
+    
 
-            val css = cssFile.map
-            {
-                f => Source.fromFile(f).getLines.mkString("\n")
-            }
-            sources map translateSource(target, base, css, flatten,
-                                        encoding, streams.log)
-        }
+    val out = new FileWriter(target)
+    out.write(html)
+    out.close()
+  }
+
+  private def zapExtension(path: String): String =
+    ExtensionPattern.replaceFirstIn(path, "$1")
+
+  private def targetFor(sourceFile: File,
+                        targetDirectory: File,
+                        baseDirectory: File,
+                        flatten: Boolean = true): File = {
+    if (flatten) {
+      Path(targetDirectory) / (sourceFile.base + ".html")
     }
 
-    // -----------------------------------------------------------------
-    // Private Utility Methods
-    // -----------------------------------------------------------------
+    else {
+      val sourcePath = sourceFile.absolutePath
+      val targetDirPath = targetDirectory.absolutePath
+      val basePath = baseDirectory.absolutePath
+      if (! sourcePath.startsWith(basePath)) {
+        throw new Exception("Can't preserve directory structure for " +
+                            "\"%s\", since it isn't under the base " +
+                            "directory \"%s\""
+                            format (sourcePath, basePath))
+      }
 
-    private def translateSource(targetDirectory: File,
-                                baseDirectory: File,
-                                css: Option[String],
-                                flatten: Boolean,
-                                encoding: String,
-                                log: Logger)
-                               (sourceFile: File): Unit =
-    {
-        import org.clapper.markwrap.MarkWrap
-
-        val parser = MarkWrap.parserFor(sourceFile)
-        val target = targetFor(sourceFile,
-                               targetDirectory,
-                               baseDirectory,
-                               flatten)
-        log.info("Translating %s document \"%s\" to \"%s\"\n"
-                 format (parser.markupType.name, sourceFile, target))
-
-        val document = new Document(Source.fromFile(sourceFile))
-        val title = document.frontMatter.getOrElse("title", "")
-        val cssSource = css map {Source.fromString(_)}
-        val html = parser.parseToHTMLDocument(document.contentSource,
-                                              title, cssSource, encoding)
-        val parentDir = new File(target.getParent)
-        if ((parentDir.exists) && (! parentDir.isDirectory))
-        {
-            throw new Exception("Target directory \"%s\" of file \"%s\" " +
-                                "exists, but is not a directory."
-                                format (parentDir, target))
-        }
-
-        if (! parentDir.exists)
-        {
-            if (! parentDir.mkdirs())
-            {
-                throw new Exception("Cannot make parent directory \"%s\" " +
-                                    "of file \"%s\"." format
-                                    (parentDir, target))
-            }
-        }
-            
-
-        val out = new FileWriter(target)
-        out.write(html)
-        out.close()
+      Path(targetDirectory) / zapExtension(sourcePath.drop(basePath.length))
     }
-
-    private def zapExtension(path: String): String =
-        ExtensionPattern.replaceFirstIn(path, "$1")
-
-    private def targetFor(sourceFile: File,
-                          targetDirectory: File,
-                          baseDirectory: File,
-                          flatten: Boolean = true): File =
-    {
-        if (flatten)
-        {
-            Path(targetDirectory) / (sourceFile.base + ".html")
-        }
-
-        else
-        {
-            val sourcePath = sourceFile.absolutePath
-            val targetDirPath = targetDirectory.absolutePath
-            val basePath = baseDirectory.absolutePath
-            if (! sourcePath.startsWith(basePath))
-            {
-                throw new Exception("Can't preserve directory structure for " +
-                                    "\"%s\", since it isn't under the base " +
-                                    "directory \"%s\""
-                                    format (sourcePath, basePath))
-            }
-
-            Path(targetDirectory) /
-            zapExtension(sourcePath.drop(basePath.length))
-        }
-    }
+  }
 }
