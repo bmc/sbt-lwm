@@ -3,6 +3,13 @@ title: "Change Log: sbt-lwm"
 layout: default
 ---
 
+Version 0.1.4:
+
+* Upgraded version of [MarkWrap][], to address problems with HTML entities.
+* Also builds for Scala 2.9.1.
+
+[MarkWrap]: http://software.clapper.org/markwrap/
+
 Version 0.1.3:
 
 * Converted code to confirm with standard Scala coding style.
