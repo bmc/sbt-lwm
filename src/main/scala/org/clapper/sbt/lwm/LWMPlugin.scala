@@ -65,48 +65,50 @@ object LWM extends Plugin {
   // Plugin Settings and Task Declarations
   // -----------------------------------------------------------------
 
-  val LWM = config("lwm") extend(Runtime)
+  object LWM {
+    val Config = config("lwm") extend(Runtime)
 
-  // sources is a list of source files to process.
-  val sourceFiles = SettingKey[Seq[File]]("source-files",
-                                          "List of sources to transform")
+    // sources is a list of source files to process.
+    val sourceFiles = SettingKey[Seq[File]]("source-files",
+                                            "List of sources to transform")
 
-  // targetDirectory is the directory where HTML files are to be
-  // written.
-  val targetDirectory = SettingKey[File]("target-directory",
-                                         "Where to copy edited files")
+    // targetDirectory is the directory where HTML files are to be
+    // written.
+    val targetDirectory = SettingKey[File]("target-directory",
+                                           "Where to copy edited files")
 
-  // Optional CSS file to include with the translated documents.
-  val cssFile = SettingKey[Option[File]](
-    "css", "CSS file to insert, inline into generated HTML"
-  )
+    // Optional CSS file to include with the translated documents.
+    val cssFile = SettingKey[Option[File]](
+      "css", "CSS file to insert, inline into generated HTML"
+    )
 
-  val encoding = SettingKey[String]("encoding", "document encoding")
+    val encoding = SettingKey[String]("encoding", "document encoding")
 
-  // Whether or not to flatten the directory structure.
-  val flatten = SettingKey[Boolean]("flatten",
-                                    "Don't preserve source directory " +
-                                    "structure.")
+    // Whether or not to flatten the directory structure.
+    val flatten = SettingKey[Boolean]("flatten",
+                                      "Don't preserve source directory " +
+                                      "structure.")
 
-  val translate = TaskKey[Unit]("translate", "Translate the docs")
-  val clean = TaskKey[Unit]("clean", "Remove target files.")
+    val translate = TaskKey[Unit]("translate", "Translate the docs")
+    val clean = TaskKey[Unit]("clean", "Remove target files.")
+  }
 
   val lwmSettings: Seq[sbt.Project.Setting[_]] =
-    inConfig(LWM)(Seq(
+    inConfig(LWM.Config)(Seq(
 
-      flatten := true,
-      encoding := "UTF-8",
-      cssFile := None,
-      sourceFiles := Seq.empty[File],
+      LWM.flatten := true,
+      LWM.encoding := "UTF-8",
+      LWM.cssFile := None,
+      LWM.sourceFiles := Seq.empty[File],
 
-      targetDirectory <<= baseDirectory(_ / "target"),
+      LWM.targetDirectory <<= baseDirectory(_ / "target"),
 
-      translate <<= translateTask,
-      clean <<= cleanTask
+      LWM.translate <<= translateTask,
+      LWM.clean <<= cleanTask
     )) ++
   inConfig(Compile)(Seq(
     // Hook our clean into the global one.
-    clean in Global <<= (clean in LWM).identity
+    clean in Global <<= (LWM.clean in LWM.Config).identity
   ))
 
   // -----------------------------------------------------------------
@@ -118,7 +120,8 @@ object LWM extends Plugin {
   // -----------------------------------------------------------------
 
   private def cleanTask: Initialize[Task[Unit]] = {
-    (sourceFiles, targetDirectory, baseDirectory, flatten, streams) map  {
+    (LWM.sourceFiles, LWM.targetDirectory, baseDirectory, LWM.flatten,
+     streams) map  {
       (sourceFiles, targetDirectory, baseDirectory, flatten, streams) =>
 
       for (sourceFile <- sourceFiles) {
@@ -135,8 +138,8 @@ object LWM extends Plugin {
   }
 
   private def translateTask: Initialize[Task[Unit]] = {
-    (sourceFiles, targetDirectory, baseDirectory, flatten, cssFile,
-     encoding, streams) map {
+    (LWM.sourceFiles, LWM.targetDirectory, baseDirectory, LWM.flatten,
+     LWM.cssFile, LWM.encoding, streams) map {
       (sources, target, base, flatten, cssFile, encoding, streams) =>
 
       val css = cssFile.map {
@@ -157,7 +160,7 @@ object LWM extends Plugin {
                               flatten: Boolean,
                               encoding: String,
                               log: Logger)
-  (sourceFile: File): Unit = {
+                             (sourceFile: File): Unit = {
     import org.clapper.markwrap.MarkWrap
 
     val parser = MarkWrap.parserFor(sourceFile)

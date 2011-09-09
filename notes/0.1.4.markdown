@@ -1,0 +1,4 @@
+* Upgraded version of [MarkWrap][], to address problems with HTML entities.
+* Also builds for Scala 2.9.1.
+
+[MarkWrap]: http://software.clapper.org/markwrap/

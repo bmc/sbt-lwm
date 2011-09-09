@@ -11,7 +11,7 @@
 
 name := "sbt-lwm"
 
-version := "0.1.3"
+version := "0.1.4"
 
 sbtPlugin := true
 
@@ -24,7 +24,7 @@ scalaVersion := "2.8.1"
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
-crossScalaVersions := Seq("2.8.1", "2.9.0-1")
+crossScalaVersions := Seq("2.8.1", "2.9.0-1", "2.9.1")
 
 // ---------------------------------------------------------------------------
 // Posterous-SBT
@@ -43,8 +43,8 @@ libraryDependencies <<= (sbtVersion, scalaVersion, libraryDependencies) { (sbtv,
 
 // External deps
 libraryDependencies ++= Seq(
-    "org.clapper" %% "grizzled-scala" % "1.0.7",
-    "org.clapper" %% "markwrap" % "0.4.1"
+    "org.clapper" %% "grizzled-scala" % "1.0.8",
+    "org.clapper" %% "markwrap" % "0.5"
 )
 
 // ---------------------------------------------------------------------------
