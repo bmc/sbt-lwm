@@ -1,0 +1,4 @@
+* Upgraded version of [MarkWrap][], to pick up a change in how line breaks
+  in Markdown source are handled.
+
+[MarkWrap]: http://software.clapper.org/markwrap/

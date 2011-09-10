@@ -11,7 +11,7 @@
 
 name := "sbt-lwm"
 
-version := "0.1.4"
+version := "0.1.5"
 
 sbtPlugin := true
 
@@ -44,7 +44,7 @@ libraryDependencies <<= (sbtVersion, scalaVersion, libraryDependencies) { (sbtv,
 // External deps
 libraryDependencies ++= Seq(
     "org.clapper" %% "grizzled-scala" % "1.0.8",
-    "org.clapper" %% "markwrap" % "0.5"
+    "org.clapper" %% "markwrap" % "0.5.1"
 )
 
 // ---------------------------------------------------------------------------
