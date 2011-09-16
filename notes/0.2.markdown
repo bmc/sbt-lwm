@@ -23,11 +23,11 @@ usage easier. Basically, the keys are now defined like this:
 Putting the `in Config` after *each* setting or task changes the `build.sbt`
 usage pattern from the clunky
 
-   LWM.sources in LWM <<= ...
+    LWM.sources in LWM <<= ...
 
 to the far more serenely intuitive
 
-   LWM.sources <<= ...
+    LWM.sources <<= ...
 
 [Josh Suereth]: http://suereth.blogspot.com/
 
