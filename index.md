@@ -57,7 +57,7 @@ Task access is similar.
 
 ---
 
-**`sourceFiles`**
+**`sources`**
 
 ---
 
@@ -71,20 +71,20 @@ The supported extensions are:
   a `<pre>` block.
 
 For instance, suppose you want to process all Markdown files within your
-"src" tree. You might set `sourceFiles` like this:
+"src" tree. You might set `sources` like this:
 
-    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
 If you also want to apply the edits to all files ending in ".markdown"
 (perhaps because you're not consistent in your extensions), use either:
 
-    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
+    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
     
 or, more succinctly:
 
-    LWM.sourceFiles <++= baseDirectory { dir =>
+    LWM.sources <++= baseDirectory { dir =>
       (dir / "src" ** "*.md").get ++
       (dir / "src" ** "*.markdown").get
     }
@@ -156,7 +156,7 @@ An example will help clarify. Consider the following file tree:
 Let's assume you're processing all the files ending in ".md", into the *target*
 directory.
 
-    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
     LWM.targetDirectory <<= baseDirectory(_ / "target")
     
@@ -190,7 +190,7 @@ to "UTF-8".
 
 *sbt-lwm* provides two new SBT tasks.
 
-* `lwm:translate` translates the files specified by `sourceFiles` to HTML.
+* `lwm:translate` translates the files specified by `sources` to HTML.
 
 * `lwm:clean` deletes all generated HTML files. `lwm:clean`
   is also automatically linked into the main SBT `clean` task.
