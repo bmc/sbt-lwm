@@ -30,7 +30,7 @@ doesn't already exist) and add the following:
     // The plugin is only published for 2.8.1, 2.9.0-1 and 2.9.1
     libraryDependencies <<= (scalaVersion, libraryDependencies) { (scv, deps) =>
         if ((scv == "2.8.1") || (scv == "2.9.0-1") || (scv == "2.9.1")
-            deps :+ "org.clapper" %% "sbt-lwm" % "0.1.4"
+            deps :+ "org.clapper" %% "sbt-lwm" % "0.2"
         else
             deps
     }
@@ -49,14 +49,9 @@ The plugin provides the following new settings and tasks.
 clashes with identically named settings from other plugins. The pattern for
 accessing settings in this plugin is:
 
-    LWM.settingName in LWM.Config <<= ...
+    LWM.settingName <<= ...
 
 Task access is similar.
-
-`LWM` appears twice, which is regrettable; however, until [SBT][] supports
-proper namespaces, this appears to be the best way to isolate the plugin's
-definitions from clashing with other plugins, when multiple plugins are
-used (and, thus, automatically imported) into a `build.sbt` file.
 
 ## Settings
 
@@ -78,18 +73,18 @@ The supported extensions are:
 For instance, suppose you want to process all Markdown files within your
 "src" tree. You might set `sourceFiles` like this:
 
-    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
 If you also want to apply the edits to all files ending in ".markdown"
 (perhaps because you're not consistent in your extensions), use either:
 
-    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
+    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
     
 or, more succinctly:
 
-    LWM.sourceFiles in LWM.Config <++= baseDirectory { dir =>
+    LWM.sourceFiles <++= baseDirectory { dir =>
       (dir / "src" ** "*.md").get ++
       (dir / "src" ** "*.markdown").get
     }
@@ -126,7 +121,7 @@ to a file. By default, no CSS file is included in the generated HTML.
 
 Example:
 
-    LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+    LWM.cssFile <<= baseDirectory(d => Some(d / "src" / "style.css" ))
 
 
 ---
@@ -138,7 +133,7 @@ Example:
 The directory to which to write the HTML versions of the source files.
 For example:
 
-    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
+    LWM.targetDirectory <<= baseDirectory(_ / "target")
 
 See also `flatten`, below.
 
@@ -161,20 +156,20 @@ An example will help clarify. Consider the following file tree:
 Let's assume you're processing all the files ending in ".md", into the *target*
 directory.
 
-    LWM.sourceFiles in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    LWM.sourceFiles <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
+    LWM.targetDirectory <<= baseDirectory(_ / "target")
     
 If you also set:
 
-    LWM.flatten in LWM.Config := true
+    LWM.flatten := true
 
 the edit operation will put all the HTML versions of all three files
 directly in the *target* directory.
 
 If, instead, you set:
 
-    LWM.flatten in LWM.Config := false
+    LWM.flatten := false
 
 you'll end up with the following edited versions:
 
