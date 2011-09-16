@@ -65,32 +65,42 @@ object LWM extends Plugin {
   // Plugin Settings and Task Declarations
   // -----------------------------------------------------------------
 
+  // NOTE: Using an inner object, with "in Config" after the Setting
+  // or Task definition allows this usage pattern:
+  //
+  //     LWM.sources <<= ...
+  //
+  // The "in Config" trick is courtesy the masterful Josh Suereth.
   object LWM {
     val Config = config("lwm") extend(Runtime)
 
     // sources is a list of source files to process.
-    val sourceFiles = SettingKey[Seq[File]]("source-files",
-                                            "List of sources to transform")
+    val sources = SettingKey[Seq[File]](
+      "source-files", "List of sources to transform"
+    ) in Config
 
     // targetDirectory is the directory where HTML files are to be
     // written.
-    val targetDirectory = SettingKey[File]("target-directory",
-                                           "Where to copy edited files")
+    val targetDirectory = SettingKey[File](
+      "target-directory", "Where to copy edited files"
+    ) in Config
 
     // Optional CSS file to include with the translated documents.
     val cssFile = SettingKey[Option[File]](
       "css", "CSS file to insert, inline into generated HTML"
-    )
+    ) in Config
 
-    val encoding = SettingKey[String]("encoding", "document encoding")
-
+    val encoding = SettingKey[String](
+      "encoding", "document encoding"
+    ) in Config
+ 
     // Whether or not to flatten the directory structure.
-    val flatten = SettingKey[Boolean]("flatten",
-                                      "Don't preserve source directory " +
-                                      "structure.")
+    val flatten = SettingKey[Boolean](
+      "flatten", "Don't preserve source directory structure."
+    ) in Config
 
-    val translate = TaskKey[Unit]("translate", "Translate the docs")
-    val clean = TaskKey[Unit]("clean", "Remove target files.")
+    val translate = TaskKey[Unit]("translate", "Translate the docs") in Config
+    val clean = TaskKey[Unit]("clean", "Remove target files.") in Config
   }
 
   val lwmSettings: Seq[sbt.Project.Setting[_]] =
@@ -99,7 +109,7 @@ object LWM extends Plugin {
       LWM.flatten := true,
       LWM.encoding := "UTF-8",
       LWM.cssFile := None,
-      LWM.sourceFiles := Seq.empty[File],
+      LWM.sources := Seq.empty[File],
 
       LWM.targetDirectory <<= baseDirectory(_ / "target"),
 
@@ -120,7 +130,7 @@ object LWM extends Plugin {
   // -----------------------------------------------------------------
 
   private def cleanTask: Initialize[Task[Unit]] = {
-    (LWM.sourceFiles, LWM.targetDirectory, baseDirectory, LWM.flatten,
+    (LWM.sources, LWM.targetDirectory, baseDirectory, LWM.flatten,
      streams) map  {
       (sourceFiles, targetDirectory, baseDirectory, flatten, streams) =>
 
@@ -138,7 +148,7 @@ object LWM extends Plugin {
   }
 
   private def translateTask: Initialize[Task[Unit]] = {
-    (LWM.sourceFiles, LWM.targetDirectory, baseDirectory, LWM.flatten,
+    (LWM.sources, LWM.targetDirectory, baseDirectory, LWM.flatten,
      LWM.cssFile, LWM.encoding, streams) map {
       (sources, target, base, flatten, cssFile, encoding, streams) =>
 

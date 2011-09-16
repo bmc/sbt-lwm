@@ -1,0 +1,38 @@
+## Change in Setting and Task Key Namespace
+
+*sbt-lwm* setting and task keys are already inside in inner `LWM` object,
+for namespace scoping. This revision adds a trick by [Josh Suereth][], to make
+usage easier. Basically, the keys are now defined like this:
+
+    object LWM extends Plugin {
+      object LWM {
+        val Config = config("lwm") extend(Runtime)
+
+        val sources = SettingKey[Seq[File]](
+          "source-files", "List of sources to transform"
+        ) in Config
+    
+        val targetDirectory = SettingKey[File](
+          "target-directory", "Where to copy edited files"
+        ) in Config
+
+        ...
+      }
+    }
+
+Putting the `in Config` after *each* setting or task changes the `build.sbt`
+usage pattern from the clunky
+
+   LWM.sources in LWM <<= ...
+
+to the far more serenely intuitive
+
+   LWM.sources <<= ...
+
+[Josh Suereth]: http://suereth.blogspot.com/
+
+## Changes in Setting Names
+
+`LWM.sourceFiles` is now `LWM.sources`, for consistency with other SBT plugins
+and settings.
+
