@@ -37,9 +37,9 @@ doesn't already exist) and add the following:
 
 Next, in your main project `build.sbt` file, add:
 
-    seq(org.clapper.sbt.lwm.LWM.lwmSettings: _*)
+    seq(LWM.settings: _*)
 
-Now the plugin is available to your SBT builds.
+Now the plugin and its settings are available to your SBT builds.
 
 # Settings and Tasks
 

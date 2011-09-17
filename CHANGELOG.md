@@ -3,6 +3,12 @@ title: "Change Log: sbt-lwm"
 layout: default
 ---
 
+Version 0.2.1:
+
+* `LWM.lwmSettings` is now deprecated, in favor of just `LWM.settings`.
+
+----
+
 Version 0.2:
 
 ## Change in Setting and Task Key Namespace
