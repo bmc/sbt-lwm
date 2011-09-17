@@ -1,0 +1,1 @@
+* `LWM.lwmSettings` is now deprecated, in favor of just `LWM.settings`.

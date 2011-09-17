@@ -9,7 +9,7 @@ scalaVersion := "2.8.1"
 
 libraryDependencies += "org.clapper" %% "grizzled-scala" % "1.0.8"
 
-seq(org.clapper.sbt.lwm.LWM.lwmSettings: _*)
+seq(LWM.settings: _*)
 
 LWM.sources <++= baseDirectory { d =>
   (d / "src" * "*.txt").get ++

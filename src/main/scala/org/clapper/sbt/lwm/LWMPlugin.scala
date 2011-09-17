@@ -101,10 +101,8 @@ object LWM extends Plugin {
 
     val translate = TaskKey[Unit]("translate", "Translate the docs") in Config
     val clean = TaskKey[Unit]("clean", "Remove target files.") in Config
-  }
 
-  val lwmSettings: Seq[sbt.Project.Setting[_]] =
-    inConfig(LWM.Config)(Seq(
+    val settings: Seq[sbt.Project.Setting[_]] = inConfig(LWM.Config)(Seq(
 
       LWM.flatten := true,
       LWM.encoding := "UTF-8",
@@ -116,10 +114,14 @@ object LWM extends Plugin {
       LWM.translate <<= translateTask,
       LWM.clean <<= cleanTask
     )) ++
-  inConfig(Compile)(Seq(
-    // Hook our clean into the global one.
-    clean in Global <<= (LWM.clean in LWM.Config).identity
-  ))
+    inConfig(Compile)(Seq(
+      // Hook our clean into the global one.
+      clean in Global <<= (LWM.clean).identity
+    ))
+  }
+
+  // backward compatibility
+  val lwmSettings = LWM.settings
 
   // -----------------------------------------------------------------
   // Public Methods
