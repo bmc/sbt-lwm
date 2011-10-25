@@ -36,8 +36,6 @@ libraryDependencies <<= (sbtVersion, scalaVersion, libraryDependencies) { (sbtv,
         deps
 }
 
-(name in Posterous) := "sbt-lwm"
-
 // ---------------------------------------------------------------------------
 // Other dependendencies
 
