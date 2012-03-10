@@ -3,7 +3,7 @@
   This software is released under a BSD license, adapted from
   http://opensource.org/licenses/bsd-license.php
 
-  Copyright (c) 2011, Brian M. Clapper
+  Copyright (c) 20111-2012, Brian M. Clapper
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,7 @@ object LWM extends Plugin {
     )) ++
     inConfig(Compile)(Seq(
       // Hook our clean into the global one.
-      clean in Global <<= (LWM.clean).identity
+      clean in Global <<= LWM.clean
     ))
   }
 

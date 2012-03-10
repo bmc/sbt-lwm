@@ -11,13 +11,11 @@
 
 name := "sbt-lwm"
 
-version := "0.2.1"
+version := "0.2.2"
 
 sbtPlugin := true
 
 organization := "org.clapper"
-
-scalaVersion := "2.8.1"
 
 // ---------------------------------------------------------------------------
 // Additional compiler options and plugins
@@ -29,13 +27,14 @@ crossScalaVersions := Seq("2.8.1", "2.9.0-1", "2.9.1")
 // ---------------------------------------------------------------------------
 // Posterous-SBT
 
-libraryDependencies <<= (sbtVersion, scalaVersion, libraryDependencies) { (sbtv, scalav, deps) =>
-    if (scalav == "2.8.1")
-        deps :+ "net.databinder" %% "posterous-sbt" % ("0.3.0_sbt" + sbtv)
-    else
-        deps
-}
+// libraryDependencies <<= (sbtVersion, scalaVersion, libraryDependencies) { (sbtv, scalav, deps) =>
+//     if (scalav == "2.8.1")
+//         deps :+ "net.databinder" %% "posterous-sbt" % ("0.3.0_sbt" + sbtv)
+//     else
+//         deps
+// }
 
+// 
 // ---------------------------------------------------------------------------
 // Other dependendencies
 
