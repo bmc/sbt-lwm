@@ -22,7 +22,7 @@ organization := "org.clapper"
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
-crossScalaVersions := Seq("2.9.1")
+crossScalaVersions := Seq("2.9.1", "2.9.0-1")
 
 // 
 // ---------------------------------------------------------------------------
