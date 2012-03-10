@@ -18,22 +18,25 @@ so it supports converting:
 * Plain text, wrapped in `<pre>` and `</pre>` tags and surrounded by
   HTML goodness.
 
-**This plugin only works with SBT 0.10.x.** If you're using SBT 0.7, there's
-an older version (with fewer features and a different variable syntax)
-[here](http://software.clapper.org/sbt-plugins/lwm.html).
+# Notes
+
+Versions of this plugin _prior_ to 0.3.0 _only_ work with SBT 0.10.x. Versions
+of this plugin from 0.3.0 on only work with SBT 0.11.1 and better.
+
+If you're using SBT 0.7, there's an older version (with fewer features and a
+different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.html).
 
 # Getting the Plugin
 
-First, within your SBT project, create `project/plugins/build.sbt` (if it
+First, within your SBT project, create `project/plugins.sbt` (if it
 doesn't already exist) and add the following:
 
-    // The plugin is only published for 2.8.1, 2.9.0-1 and 2.9.1
-    libraryDependencies <<= (scalaVersion, libraryDependencies) { (scv, deps) =>
-        if ((scv == "2.8.1") || (scv == "2.9.0-1") || (scv == "2.9.1")
-            deps :+ "org.clapper" %% "sbt-lwm" % "0.2"
-        else
-            deps
-    }
+    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3")
+
+    resolvers += Resolver.url(
+      "sbt-plugin-releases",
+      new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/")
+    )(Resolver.ivyStylePatterns)
 
 Next, in your main project `build.sbt` file, add:
 
