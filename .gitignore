@@ -7,3 +7,6 @@ src/testproject/project/target/
 src/testproject/src/style.css
 src/testproject/target/
 target/
+.ensime_port
+sbt-lwm.sublime*
+src/testproject/.history
