@@ -5,7 +5,7 @@ version := "0.1"
 
 organization := "org.clapper"
 
-libraryDependencies += "org.clapper" %% "grizzled-scala" % "1.0.8"
+libraryDependencies += "org.clapper" %% "grizzled-scala" % "1.0.10"
 
 seq(LWM.settings: _*)
 
@@ -15,10 +15,10 @@ sources in LWM.Config <++= baseDirectory map { d =>
   (d / "src" * "*.textile").get
 }
 
-LWM.cssFile <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
 
 logLevel := Level.Debug
 
-LWM.targetDirectory <<= baseDirectory(_ / "target")
+LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
 
-LWM.flatten := true
+LWM.flatten in LWM.Config := true

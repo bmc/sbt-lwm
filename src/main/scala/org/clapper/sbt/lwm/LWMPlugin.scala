@@ -3,7 +3,7 @@
   This software is released under a BSD license, adapted from
   http://opensource.org/licenses/bsd-license.php
 
-  Copyright (c) 20111-2012, Brian M. Clapper
+  Copyright (c) 2011-2012, Brian M. Clapper
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -49,9 +49,6 @@ import scala.annotation.tailrec
 
 import grizzled.file.{util => FileUtil}
 
-object LWMKeys {
-
-}
 /**
  * Plugin for SBT (Simple Build Tool) that provides a task to convert
  * files in several lightweight markup languages (Textile, Markdown)
