@@ -48,11 +48,12 @@ Now the plugin and its settings are available to your SBT builds.
 
 The plugin provides the following new settings and tasks.
 
-**Note**: All settings and tasks are in an `LWM` namespace, to avoid import
-clashes with identically named settings from other plugins. The pattern for
-accessing settings in this plugin is:
+**Note**: sbt-lwm uses predefined SBT settings, where possible (e.g.,
+`sources`). Where sbt-lwm defines its own settings, *those*  settings are in an
+`LWM` namespace, to avoid import clashes with identically named settings from
+other plugins. The pattern for accessing settings in this plugin is:
 
-    LWM.settingName <<= ...
+    LWM.settingName in LWM.Config <<= ...
 
 Task access is similar.
 
@@ -76,18 +77,18 @@ The supported extensions are:
 For instance, suppose you want to process all Markdown files within your
 "src" tree. You might set `sources` like this:
 
-    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    sources in LWM.Config <++= baseDirectory map (d => (d / "src" ** "*.md").get)
 
 If you also want to apply the edits to all files ending in ".markdown"
 (perhaps because you're not consistent in your extensions), use either:
 
-    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    sources in LWM.Confi <++= baseDirectory map (d => (d / "src" ** "*.md").get)
 
-    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.markdown").get)
+    sources in LWM.Config <++= baseDirectory map (d => (d / "src" ** "*.markdown").get)
     
 or, more succinctly:
 
-    LWM.sources <++= baseDirectory { dir =>
+    sources in LWM.Config <++= baseDirectory { dir =>
       (dir / "src" ** "*.md").get ++
       (dir / "src" ** "*.markdown").get
     }
