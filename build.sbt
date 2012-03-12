@@ -11,11 +11,17 @@
 
 name := "sbt-lwm"
 
-version := "0.3"
+version := "0.3.1"
 
 sbtPlugin := true
 
 organization := "org.clapper"
+
+licenses := Seq("BSD-like" ->
+  url("http://software.clapper.org/sbt-lwm/license.html")
+)
+
+description := "An SBT plugin for processing lightweight markup files"
 
 // ---------------------------------------------------------------------------
 // Additional compiler options and plugins
@@ -28,7 +34,7 @@ seq(lsSettings: _*)
 
 (LsKeys.tags in LsKeys.lsync) := Seq("lwm", "markup", "textile", "markdown")
 
-(description in LsKeys.lsync) := "An SBT plugin for processing lightweight markup files"
+(description in LsKeys.lsync) <<= description(d => d)
 
 // ---------------------------------------------------------------------------
 // Other dependendencies
@@ -53,5 +59,12 @@ publishTo <<= (version) { version: String =>
 
 publishArtifact in packageDoc := false
 
+publishMavenStyle := false
 
-seq(lsSettings :_*)
+publishArtifact in (Compile, packageBin) := true
+
+publishArtifact in (Test, packageBin) := false
+
+publishArtifact in (Compile, packageDoc) := false
+
+publishArtifact in (Compile, packageSrc) := false

@@ -55,7 +55,6 @@ import grizzled.file.{util => FileUtil}
  * to HTML.
  */
 object LWM extends Plugin {
-  import LWMKeys._
 
   // -----------------------------------------------------------------
   // Constants
