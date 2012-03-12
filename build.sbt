@@ -24,7 +24,12 @@ scalacOptions ++= Seq("-deprecation", "-unchecked")
 
 crossScalaVersions := Seq("2.9.1", "2.9.0-1")
 
-// 
+seq(lsSettings: _*)
+
+(LsKeys.tags in LsKeys.lsync) := Seq("lwm", "markup", "textile", "markdown")
+
+(description in LsKeys.lsync) := "An SBT plugin for processing lightweight markup files"
+
 // ---------------------------------------------------------------------------
 // Other dependendencies
 
@@ -47,3 +52,6 @@ publishTo <<= (version) { version: String =>
 }
 
 publishArtifact in packageDoc := false
+
+
+seq(lsSettings :_*)
