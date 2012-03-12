@@ -125,7 +125,7 @@ to a file. By default, no CSS file is included in the generated HTML.
 
 Example:
 
-    LWM.cssFile <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+    LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
 
 
 ---
@@ -137,7 +137,7 @@ Example:
 The directory to which to write the HTML versions of the source files.
 For example:
 
-    LWM.targetDirectory <<= baseDirectory(_ / "target")
+    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
 
 See also `flatten`, below.
 
@@ -160,20 +160,20 @@ An example will help clarify. Consider the following file tree:
 Let's assume you're processing all the files ending in ".md", into the *target*
 directory.
 
-    LWM.sources <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    sources in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    LWM.targetDirectory <<= baseDirectory(_ / "target")
+    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
     
 If you also set:
 
-    LWM.flatten := true
+    LWM.flatten in LWM.Config := true
 
 the edit operation will put all the HTML versions of all three files
 directly in the *target* directory.
 
 If, instead, you set:
 
-    LWM.flatten := false
+    LWM.flatten in LWM.Config := false
 
 you'll end up with the following edited versions:
 
