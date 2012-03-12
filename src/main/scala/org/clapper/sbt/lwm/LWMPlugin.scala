@@ -76,7 +76,7 @@ object LWM extends Plugin {
     // targetDirectory is the directory where HTML files are to be
     // written.
     val targetDirectory = SettingKey[File](
-      "target-directory", "Where to copy edited files"
+      "target-directory", "Where to copy generated HTML"
     )
 
     // Optional CSS file to include with the translated documents.
