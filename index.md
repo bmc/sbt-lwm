@@ -20,8 +20,8 @@ so it supports converting:
 
 # Notes
 
-Versions of this plugin _prior_ to 0.3.0 _only_ work with SBT 0.10.x. Versions
-of this plugin from 0.3.0 on only work with SBT 0.11.1 and better.
+Versions of this plugin _prior_ to 0.3 _only_ work with SBT 0.10.x. Versions
+of this plugin from 0.3 on only work with SBT 0.11.1 and better.
 
 If you're using SBT 0.7, there's an older version (with fewer features and a
 different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.html).
@@ -31,7 +31,7 @@ different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.ht
 First, within your SBT project, create `project/plugins.sbt` (if it
 doesn't already exist) and add the following:
 
-    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3")
+    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3.1")
 
     resolvers += Resolver.url(
       "sbt-plugin-releases",
