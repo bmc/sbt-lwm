@@ -8,5 +8,5 @@ src/testproject/src/style.css
 src/testproject/target/
 target/
 .ensime_port
-sbt-lwm.sublime*
+*.sublime*
 src/testproject/.history
