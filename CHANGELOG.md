@@ -3,6 +3,12 @@ title: "Change Log: sbt-lwm"
 layout: default
 ---
 
+Version 0.3.2:
+
+* Updated Grizzled Scala and MarkWrap versions.
+
+----
+
 Version 0.3.1:
 
 * Fixed Ivy-related publishing issue.

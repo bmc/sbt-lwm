@@ -31,7 +31,7 @@ different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.ht
 First, within your SBT project, create `project/plugins.sbt` (if it
 doesn't already exist) and add the following:
 
-    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3.1")
+    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3.2")
 
     resolvers += Resolver.url(
       "sbt-plugin-releases",
