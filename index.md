@@ -79,27 +79,24 @@ is a little more complicated. For complete details, see the section entitled
 *Usage example* in the SBT wiki's [Plugins page][]. Here's an LWM-specific
 example:
 
+    import sbt._
+    import Keys._
+    import org.clapper.sbt.lwm.LWM._
 
-```scala
-import sbt._
-import Keys._
-import org.clapper.sbt.lwm.LWM._
-
-object MyBuild extends Build {
-  override lazy val projects = Seq(root)
-  lazy val root = Project(
-    "root", file(".")
-  ).settings (LWM.settings : _*).settings(
-    sources in LWM.Config <++= baseDirectory map { d =>
-      (d / "src" * "*.txt").get ++
-      (d / "src" * "*.md").get ++
-      (d / "src" * "*.textile").get
+    object MyBuild extends Build {
+      override lazy val projects = Seq(root)
+      lazy val root = Project(
+        "root", file(".")
+      ).settings (LWM.settings : _*).settings(
+        sources in LWM.Config <++= baseDirectory map { d =>
+          (d / "src" * "*.txt").get ++
+          (d / "src" * "*.md").get ++
+          (d / "src" * "*.textile").get
+        }
+        LWM.targetDirectory in LWM.Config << baseDirectory(_ / "target")
+        LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+      )
     }
-    LWM.targetDirectory in LWM.Config << baseDirectory(_ / "target")
-    LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
-  )
-}
-```
 
 [Plugins page]: https://github.com/harrah/xsbt/wiki/Plugins
 
