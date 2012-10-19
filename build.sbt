@@ -11,7 +11,7 @@
 
 name := "sbt-lwm"
 
-version := "0.3.2"
+version := "0.3.3"
 
 sbtPlugin := true
 
@@ -28,6 +28,8 @@ description := "An SBT plugin for processing lightweight markup files"
 
 scalacOptions ++= Seq("-deprecation", "-unchecked")
 
+crossScalaVersions := Seq("2.9.1", "2.9.2")
+
 seq(lsSettings: _*)
 
 (LsKeys.tags in LsKeys.lsync) := Seq("lwm", "markup", "textile", "markdown")
@@ -39,8 +41,8 @@ seq(lsSettings: _*)
 
 // External deps
 libraryDependencies ++= Seq(
-    "org.clapper" %% "grizzled-scala" % "1.0.12",
-    "org.clapper" %% "markwrap" % "0.5.3"
+    "org.clapper" %% "grizzled-scala" % "1.0.13",
+    "org.clapper" %% "markwrap" % "0.5.5"
 )
 
 // ---------------------------------------------------------------------------
