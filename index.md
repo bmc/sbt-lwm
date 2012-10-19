@@ -33,7 +33,7 @@ different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.ht
 First, within your SBT project, create `project/plugins.sbt` (if it
 doesn't already exist) and add the following:
 
-    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3.2")
+    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3.3")
 
     resolvers += Resolver.url(
       "sbt-plugin-releases",
@@ -291,7 +291,7 @@ request. Along with any patch you send:
 [GitHub repository]: http://github.com/bmc/sbt-lwm
 [GitHub]: https://github.com/bmc/
 [bmc@clapper.org]: mailto:bmc@clapper.org
-[changelog]: CHANGELOG.html
+[changelog]: https://github.com/bmc/sbt-lwm/blob/master/CHANGELOG.md
 [PegDown]: http://pegdown.org
 [Mylyn]: http://www.eclipse.org/mylyn/
 [cascading style sheet]: http://www.w3.org/Style/CSS/
