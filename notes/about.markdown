@@ -1,4 +1,4 @@
-[sbt-lwm][] (**_L_**ight **_W_**eight **_M_**arkup) is an [SBT][] 0.10.x
+[sbt-lwm][] (**_L_**ight **_W_**eight **_M_**arkup) is an [SBT][]
 plugin that converts lightweight markup documents to HTML. It currently
 supports [Textile][] and [Markdown][].
 
