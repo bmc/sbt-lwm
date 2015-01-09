@@ -21,7 +21,8 @@ so it supports converting:
 # Notes
 
 Versions of this plugin _prior_ to 0.3 _only_ work with SBT 0.10.x. Versions
-of this plugin from 0.3 on only work with SBT 0.11.1 and better.
+of this plugin from 0.3 on only work with SBT 0.11.1 and 0.12.x. Versions
+from 0.4 onward only work with SBT 0.13.x and better.
 
 If you're using SBT 0.7, there's an older version (with fewer features and a
 different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.html).
@@ -30,90 +31,36 @@ different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.ht
 
 ## Getting the Plugin
 
-First, within your SBT project, create `project/plugins.sbt` (if it
+Within your SBT project, create `project/plugins.sbt` (if it
 doesn't already exist) and add the following:
 
-    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.3.3")
+    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.4.0")
 
-    resolvers += Resolver.url(
-      "sbt-plugin-releases",
-      new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/")
-    )(Resolver.ivyStylePatterns)
+# Settings and Tasks
 
-## Using in a `build.sbt` file
+The plugin provides the following settings and tasks.
 
-In your main project `build.sbt` file, add:
+**Note**: *sbt-lwm* uses predefined SBT settings, where possible (e.g.,
+`sources`). Of course, that's not always possible. To be sure you're updating
+the correct setting, *always* use the form:
 
-    seq(LWM.settings: _*)
-
-Now the plugin and its settings are available to your SBT builds. Within
-`build.sbt`, the pattern for accessing settings is 
-
-    LWM.settingName in LWM.Config <<= ...
-
-or
-
-    settingName in LWM.Config <<= ...
-
-depending on whether the setting is a common SBT one (such as `sources`) or
-an LWM-specific one (such as `LWM.targetDirectory`).
+    settingName in LWM
 
 For instance:
 
-    sources in LWM.Config <++= baseDirectory map { d =>
+    flatten in LWM := false
+
+    sources in LWM <++= baseDirectory map { d =>
       (d / "src" * "*.txt").get ++
       (d / "src" * "*.md").get ++
       (d / "src" * "*.textile").get
     }
 
-    LWM.targetDirectory in LWM.Config << baseDirectory(_ / "target")
+    targetDirectory in LWM <<= baseDirectory(_ / "target")
 
-    LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+    cssFile in LWM <<= baseDirectory(d => Some(d / "src" / "style.css" ))
 
 You can find the list of settings and tasks below.
-
-## Using in a `Build.scala` file
-
-The pattern for accessing the settings within a full (`Build.scala`) definition
-is a little more complicated. For complete details, see the section entitled
-*Usage example* in the SBT wiki's [Plugins page][]. Here's an LWM-specific
-example:
-
-    import sbt._
-    import Keys._
-    import org.clapper.sbt.lwm.LWM._
-
-    object MyBuild extends Build {
-      override lazy val projects = Seq(root)
-      lazy val root = Project(
-        "root", file(".")
-      ).settings (LWM.settings : _*).settings(
-        sources in LWM.Config <++= baseDirectory map { d =>
-          (d / "src" * "*.txt").get ++
-          (d / "src" * "*.md").get ++
-          (d / "src" * "*.textile").get
-        }
-        LWM.targetDirectory in LWM.Config << baseDirectory(_ / "target")
-        LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
-      )
-    }
-
-[Plugins page]: https://github.com/harrah/xsbt/wiki/Plugins
-
-# Settings and Tasks
-
-The plugin provides the following new settings and tasks. From here on out,
-the documentation assumes you'll be using `build.sbt`. If you're using a
-full `Build.scala`, adapt accordingly, using the previous section as a guide.
-
-**Note**: sbt-lwm uses predefined SBT settings, where possible (e.g.,
-`sources`). Where sbt-lwm defines its own settings, *those*  settings are in an
-`LWM` namespace, to avoid import clashes with identically named settings from
-other plugins. The pattern for accessing settings in this plugin is:
-
-    LWM.settingName in LWM.Config <<= ...
-
-Task access is similar.
 
 ## Settings
 
@@ -135,18 +82,18 @@ The supported extensions are:
 For instance, suppose you want to process all Markdown files within your
 "src" tree. You might set `sources` like this:
 
-    sources in LWM.Config <++= baseDirectory map (d => (d / "src" ** "*.md").get)
+    sources in LWM <++= baseDirectory map (d => (d / "src" ** "*.md").get)
 
 If you also want to apply the edits to all files ending in ".markdown"
 (perhaps because you're not consistent in your extensions), use either:
 
-    sources in LWM.Confi <++= baseDirectory map (d => (d / "src" ** "*.md").get)
+    sources in LWM <++= baseDirectory map (d => (d / "src" ** "*.md").get)
 
-    sources in LWM.Config <++= baseDirectory map (d => (d / "src" ** "*.markdown").get)
+    sources in LWM <++= baseDirectory map (d => (d / "src" ** "*.markdown").get)
     
 or, more succinctly:
 
-    sources in LWM.Config <++= baseDirectory { dir =>
+    sources in LWM <++= baseDirectory { dir =>
       (dir / "src" ** "*.md").get ++
       (dir / "src" ** "*.markdown").get
     }
@@ -183,7 +130,7 @@ to a file. By default, no CSS file is included in the generated HTML.
 
 Example:
 
-    LWM.cssFile in LWM.Config <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+    cssFile in LWM <<= baseDirectory(d => Some(d / "src" / "style.css" ))
 
 
 ---
@@ -195,7 +142,7 @@ Example:
 The directory to which to write the HTML versions of the source files.
 For example:
 
-    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
+    targetDirectory in LWM <<= baseDirectory(_ / "target")
 
 See also `flatten`, below.
 
@@ -218,20 +165,20 @@ An example will help clarify. Consider the following file tree:
 Let's assume you're processing all the files ending in ".md", into the *target*
 directory.
 
-    sources in LWM.Config <++= baseDirectory(d => (d / "src" ** "*.md").get)
+    sources in LWM <++= baseDirectory(d => (d / "src" ** "*.md").get)
 
-    LWM.targetDirectory in LWM.Config <<= baseDirectory(_ / "target")
+    targetDirectory in LWM <<= baseDirectory(_ / "target")
     
 If you also set:
 
-    LWM.flatten in LWM.Config := true
+    flatten in LWM := true
 
 the edit operation will put all the HTML versions of all three files
 directly in the *target* directory.
 
 If, instead, you set:
 
-    LWM.flatten in LWM.Config := false
+    flatten in LWM := false
 
 you'll end up with the following edited versions:
 
@@ -247,6 +194,10 @@ you'll end up with the following edited versions:
 
 The encoding of the source file and, hence, the resulting HTML. Defaults
 to "UTF-8".
+
+e.g.:
+
+    encoding in LWM := "ISO-8859_1"
 
 ## Tasks
 
@@ -277,10 +228,10 @@ patches to me or to fork the [GitHub repository][] and send me a pull
 request. Along with any patch you send:
 
 * Please state that the patch is your original work.
-* Please indicate that you license the work to the Grizzled-Scala project
+* Please indicate that you license the work to the *sbt-lwm* project
   under a [BSD License][].
 
-[BSD License]: license.html
+[BSD License]: https://github.com/bmc/sbt-lwm/blob/master/LICENSE.md
 [sbt-lwm web site]: http://software.clapper.org/sbt-lwm/
 [sbt-lwm]: http://software.clapper.org/sbt-lwm/
 [Markdown]: http://daringfireball.net/projects/markdown/
