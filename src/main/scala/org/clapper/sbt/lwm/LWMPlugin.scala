@@ -3,7 +3,7 @@
   This software is released under a BSD license, adapted from
   http://opensource.org/licenses/bsd-license.php
 
-  Copyright (c) 2011-2012, Brian M. Clapper
+  Copyright (c) 2011-2015, Brian M. Clapper
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import grizzled.file.{util => FileUtil}
  * files in several lightweight markup languages (Textile, Markdown)
  * to HTML.
  */
-object LWM extends Plugin {
+object LWMPlugin extends AutoPlugin {
 
   // -----------------------------------------------------------------
   // Constants
@@ -66,8 +66,10 @@ object LWM extends Plugin {
   // Plugin Settings and Task Declarations
   // -----------------------------------------------------------------
 
-  object LWM {
-    val Config = config("lwm") extend(Runtime)
+  override def trigger = allRequirements
+
+  object autoImport {
+    val LWM = config("lwm")
 
     // targetDirectory is the directory where HTML files are to be
     // written.
@@ -77,7 +79,7 @@ object LWM extends Plugin {
 
     // Optional CSS file to include with the translated documents.
     val cssFile = SettingKey[Option[File]](
-      "css", "CSS file to insert, inline into generated HTML"
+      "css", "CSS file to insert inline into generated HTML"
     )
 
     val encoding = SettingKey[String](
@@ -92,60 +94,53 @@ object LWM extends Plugin {
     val translate = TaskKey[Unit]("translate", "Translate the docs")
     val lwmClean = TaskKey[Unit]("clean", "Remove target files.")
 
-    val settings: Seq[sbt.Project.Setting[_]] = inConfig(Config)(Seq(
+    lazy val baseSettings: Seq[Def.Setting[_]] = Seq(
 
-      flatten := true,
-      encoding := "UTF-8",
-      cssFile := None,
-      sources := Seq.empty[File],
+      flatten           := true,
+      encoding          := "UTF-8",
+      cssFile           := None,
+      sources           := Seq.empty[File],
+      targetDirectory   := baseDirectory(_ / "target").value,
 
-      targetDirectory <<= baseDirectory(_ / "target"),
-
-      translate <<= translateTask,
-      clean in Config <<= cleanTask
-    )) ++
-    inConfig(Compile)(Seq(
-      // Hook our clean into the global one.
-      clean in Global <<= clean in LWM.Config
-    ))
+      translate in LWM  := LWMRunner.translate(LWM).value,
+      clean in LWM      := LWMRunner.clean(LWM).value
+    )
   }
 
-  // -----------------------------------------------------------------
-  // Public Methods
-  // -----------------------------------------------------------------
+  import autoImport._
 
-  // -----------------------------------------------------------------
-  // Task Implementations
-  // -----------------------------------------------------------------
+  override lazy val projectSettings = inConfig(LWM)(baseSettings)
 
-  private def cleanTask: Initialize[Task[Unit]] = {
-    (sources in LWM.Config, LWM.targetDirectory, baseDirectory, LWM.flatten,
-     streams) map  {
-      (sourceFiles, targetDirectory, baseDirectory, flatten, streams) =>
+  object LWMRunner {
+    def translate(config: Configuration): Def.Initialize[Task[Seq[File]]] = Def.task {
+      val sourceFiles = (sources in LWM).value
+      val targetDir   = (targetDirectory in LWM).value
+      val flattenTree = (flatten in LWM).value
+      val baseDir     = baseDirectory.value
+      val enc         = (encoding in LWM).value
+      val log         = streams.value.log
 
-      for (sourceFile <- sourceFiles) {
-        val targetFile = targetFor(sourceFile,
-                                   targetDirectory,
-                                   baseDirectory,
-                                   flatten)
+      // Get the CSS contents, if any.
+      val css = (cssFile in LWM).value.map { Source.fromFile(_).mkString }
+
+      sourceFiles map translateSource(targetDir, baseDir, css, flattenTree,
+                                      enc, log)
+    }
+
+    def clean(config: Configuration): Def.Initialize[Task[Unit]] = Def.task {
+      val sourceFiles = (sources in LWM).value
+      val targetDir   = (targetDirectory in LWM).value
+      val flattenTree = (flatten in LWM).value
+      val baseDir     = baseDirectory.value
+      val log         = streams.value.log
+
+      for (src <- sourceFiles) {
+        val targetFile = targetFor(src, targetDir, baseDir, flattenTree)
         if (targetFile.exists) {
-          streams.log.debug("Deleting \"%s\"" format targetFile)
+          log.debug("Deleting \"%s\"" format targetFile)
           targetFile.delete
         }
       }
-    }
-  }
-
-  private def translateTask: Initialize[Task[Unit]] = {
-    (sources in LWM.Config, LWM.targetDirectory, baseDirectory, LWM.flatten,
-     LWM.cssFile, LWM.encoding, streams) map {
-      (sources, target, base, flatten, cssFile, encoding, streams) =>
-
-      val css = cssFile.map {
-        f => Source.fromFile(f).getLines.mkString("\n")
-      }
-      sources map translateSource(target, base, css, flatten,
-                                  encoding, streams.log)
     }
   }
 
@@ -159,7 +154,7 @@ object LWM extends Plugin {
                               flatten: Boolean,
                               encoding: String,
                               log: Logger)
-                             (sourceFile: File): Unit = {
+                             (sourceFile: File): File = {
     import org.clapper.markwrap.MarkWrap
 
     val parser = MarkWrap.parserFor(sourceFile)
@@ -194,6 +189,8 @@ object LWM extends Plugin {
     val out = new FileWriter(target)
     out.write(html)
     out.close()
+
+    target
   }
 
   private def zapExtension(path: String): String =

@@ -10,3 +10,5 @@ target/
 .ensime_port
 *.sublime*
 src/testproject/.history
+/.idea*
+atlassian*

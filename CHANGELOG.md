@@ -3,6 +3,12 @@ title: "Change Log: sbt-lwm"
 layout: default
 ---
 
+Version 0.4.0
+
+* Upgraded for SBT 0.13.x.
+
+----
+
 Version 0.3.2:
 
 * Updated to SBT 0.12.

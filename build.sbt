@@ -1,34 +1,34 @@
 // ---------------------------------------------------------------------------
-// SBT 0.10.x Build File for sbt-lwm Plugin
+// SBT Build File for sbt-lwm Plugin
 //
-// Copyright (c) 2011 Brian M. Clapper
+// Copyright (c) 2011-2015 Brian M. Clapper
 //
 // See accompanying license file for license information.
 // ---------------------------------------------------------------------------
+
+import bintray.Keys._
 
 // ---------------------------------------------------------------------------
 // Basic settings
 
 name := "sbt-lwm"
 
-version := "0.3.3"
+version := "0.4.0"
 
 sbtPlugin := true
 
 organization := "org.clapper"
 
-licenses := Seq("BSD-like" ->
-  url("http://software.clapper.org/sbt-lwm/license.html")
-)
+licenses += ("BSD New" -> url("https://github.com/bmc/sbt-lwm/blob/master/LICENSE.md"))
 
 description := "An SBT plugin for processing lightweight markup files"
 
 // ---------------------------------------------------------------------------
 // Additional compiler options and plugins
 
-scalacOptions ++= Seq("-deprecation", "-unchecked")
+scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature")
 
-crossScalaVersions := Seq("2.9.1", "2.9.2")
+crossScalaVersions := Seq("2.10.4")
 
 seq(lsSettings: _*)
 
@@ -39,32 +39,22 @@ seq(lsSettings: _*)
 // ---------------------------------------------------------------------------
 // Other dependendencies
 
+bintrayResolverSettings
+
 // External deps
 libraryDependencies ++= Seq(
-    "org.clapper" %% "grizzled-scala" % "1.0.13",
-    "org.clapper" %% "markwrap" % "0.5.5"
+  "org.clapper" %% "grizzled-scala" % "1.3",
+  "org.clapper" %% "markwrap" % "1.0.2"
 )
 
 // ---------------------------------------------------------------------------
 // Publishing criteria
 
-publishTo <<= (version) { version: String =>
-   val scalasbt = "http://scalasbt.artifactoryonline.com/scalasbt/"
-   val (name, url) = if (version.contains("-SNAPSHOT"))
-                       ("sbt-plugin-snapshots", scalasbt+"sbt-plugin-snapshots")
-                     else
-                       ("sbt-plugin-releases", scalasbt+"sbt-plugin-releases")
-   Some(Resolver.url(name, new URL(url))(Resolver.ivyStylePatterns))
-}
-
-publishArtifact in packageDoc := false
 
 publishMavenStyle := false
 
-publishArtifact in (Compile, packageBin) := true
+bintrayPublishSettings
 
-publishArtifact in (Test, packageBin) := false
+repository in bintray := "sbt-plugins"
 
-publishArtifact in (Compile, packageDoc) := false
-
-publishArtifact in (Compile, packageSrc) := false
+bintrayOrganization in bintray := None
