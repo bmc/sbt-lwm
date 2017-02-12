@@ -13,7 +13,7 @@ supports [Textile][] and [Markdown][].
 so it supports converting:
 
 * [Markdown][], via the [PegDown][] parser.
-* [Textile][], via the [FuseSource WikiText fork][] of then Eclipse
+* [Textile][], via the [FuseSource WikiText fork][] of the Eclipse
   [Mylyn][] *wikitext* parser API.
 * Plain text, wrapped in `<pre>` and `</pre>` tags and surrounded by
   HTML goodness.
