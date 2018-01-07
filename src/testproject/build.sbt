@@ -1,22 +1,20 @@
 
 name := "sbt-lwm-test"
 
-version := "0.2"
+version := "0.3"
 
 organization := "org.clapper"
 
-libraryDependencies += "org.clapper" %% "grizzled-scala" % "1.3"
+(sources in LWM) ++= (baseDirectory.value / "src" * "*.txt").get ++
+                     (baseDirectory.value / "src" * "*.md").get ++
+                     (baseDirectory.value / "src" * "*.textile").get
 
-(sources in LWM) <++= baseDirectory map { d =>
-  (d / "src" * "*.txt").get ++
-  (d / "src" * "*.md").get ++
-  (d / "src" * "*.textile").get
-}
-
-cssFile in LWM <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+cssFile in LWM := Some(baseDirectory.value / "src" / "style.css")
 
 logLevel := Level.Debug
 
-targetDirectory in LWM <<= baseDirectory(_ / "target")
+targetDirectory in LWM := baseDirectory.value / "target"
 
 flatten in LWM := true
+
+compile in Compile := ((compile in Compile) dependsOn (translate in LWM)).value

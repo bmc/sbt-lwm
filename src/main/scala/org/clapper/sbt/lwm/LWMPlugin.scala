@@ -3,35 +3,10 @@
   This software is released under a BSD license, adapted from
   http://opensource.org/licenses/bsd-license.php
 
-  Copyright (c) 2011-2015, Brian M. Clapper
+  Copyright (c) 2011-2018, Brian M. Clapper
   All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are
-  met:
-
-  * Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimer.
-
-  * Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
-
-  * Neither the names "clapper.org", "sbt-lwm", nor the names of any
-    contributors may be used to endorse or promote products derived from
-    this software without specific prior written permission.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-  IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-  PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  See accompanying license file for license information.
   ---------------------------------------------------------------------------
 */
 
@@ -39,15 +14,10 @@ package org.clapper.sbt.lwm
 
 import sbt._
 import Keys._
-import Project.Initialize
 
-import java.io.{File, FileWriter, PrintWriter}
+import java.io.{File, FileWriter}
 
 import scala.io.Source
-import scala.util.matching.Regex
-import scala.annotation.tailrec
-
-import grizzled.file.{util => FileUtil}
 
 /**
  * Plugin for SBT (Simple Build Tool) that provides a task to convert
@@ -66,6 +36,7 @@ object LWMPlugin extends AutoPlugin {
   // Plugin Settings and Task Declarations
   // -----------------------------------------------------------------
 
+  override def requires = plugins.JvmPlugin
   override def trigger = allRequirements
 
   object autoImport {
@@ -73,29 +44,24 @@ object LWMPlugin extends AutoPlugin {
 
     // targetDirectory is the directory where HTML files are to be
     // written.
-    val targetDirectory = SettingKey[File](
-      "target-directory", "Where to copy generated HTML"
-    )
+    val targetDirectory = settingKey[File]("Where to copy generated HTML")
 
     // Optional CSS file to include with the translated documents.
-    val cssFile = SettingKey[Option[File]](
-      "css", "CSS file to insert inline into generated HTML"
+    val cssFile = settingKey[Option[File]](
+      "CSS file to insert inline into generated HTML"
     )
 
-    val encoding = SettingKey[String](
-      "encoding", "document encoding"
-    )
+    val encoding = settingKey[String]("Document encoding")
 
     // Whether or not to flatten the directory structure.
-    val flatten = SettingKey[Boolean](
-      "flatten", "Don't preserve source directory structure."
+    val flatten = settingKey[Boolean](
+      "Don't preserve source directory structure."
     )
 
     val translate = TaskKey[Unit]("translate", "Translate the docs")
     val lwmClean = TaskKey[Unit]("clean", "Remove target files.")
 
     lazy val baseSettings: Seq[Def.Setting[_]] = Seq(
-
       flatten           := true,
       encoding          := "UTF-8",
       cssFile           := None,
@@ -137,7 +103,7 @@ object LWMPlugin extends AutoPlugin {
       for (src <- sourceFiles) {
         val targetFile = targetFor(src, targetDir, baseDir, flattenTree)
         if (targetFile.exists) {
-          log.debug("Deleting \"%s\"" format targetFile)
+          log.debug(s"""Deleting "$targetFile"""")
           targetFile.delete
         }
       }
@@ -167,24 +133,22 @@ object LWMPlugin extends AutoPlugin {
 
     val document = new Document(Source.fromFile(sourceFile))
     val title = document.frontMatter.getOrElse("title", "")
-    val cssSource = css map {Source.fromString(_)}
+    val cssSource = css map Source.fromString
     val html = parser.parseToHTMLDocument(document.contentSource,
                                           title, cssSource, encoding)
     val parentDir = new File(target.getParent)
-    if ((parentDir.exists) && (! parentDir.isDirectory)) {
-      throw new Exception("Target directory \"%s\" of file \"%s\" " +
-                          "exists, but is not a directory."
-                          format (parentDir, target))
+    if (parentDir.exists && (! parentDir.isDirectory)) {
+      throw new Exception(s"""Target directory "$parentDir" of file """ +
+                          s""""$target" exists, but is not a directory.""")
     }
 
     if (! parentDir.exists) {
       if (! parentDir.mkdirs()) {
-        throw new Exception("Cannot make parent directory \"%s\" " +
-                            "of file \"%s\"." format
-                            (parentDir, target))
+        throw new Exception(s"""Cannot make parent directory "$parentDir """ +
+                            s"""of file "$target".""")
       }
     }
-    
+
 
     val out = new FileWriter(target)
     out.write(html)
@@ -210,9 +174,8 @@ object LWMPlugin extends AutoPlugin {
       val basePath = baseDirectory.absolutePath
       if (! sourcePath.startsWith(basePath)) {
         throw new Exception("Can't preserve directory structure for " +
-                            "\"%s\", since it isn't under the base " +
-                            "directory \"%s\""
-                            format (sourcePath, basePath))
+                            s""""$sourcePath", since it isn't under the """ +
+                            s"""base directory "$basePath".""")
       }
 
       Path(targetDirectory) / zapExtension(sourcePath.drop(basePath.length))

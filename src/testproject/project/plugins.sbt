@@ -1,2 +1,2 @@
-addSbtPlugin("org.clapper" % "sbt-lwm" % "0.4.0")
+addSbtPlugin("org.clapper" % "sbt-lwm" % "1.0.0")
 
