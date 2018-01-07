@@ -1,4 +1,2 @@
-exclude: run-markdown.sh
 highligher: rouge
-codeurl: https://github.com/bmc/sbt-lwm
 markdown: kramdown
