@@ -5,7 +5,7 @@ layout: withTOC
 
 # Overview
 
-[sbt-lwm][] (**_L_**ight **_W_**eight **_M_**arkup) is an [SBT][] 0.11.x
+[sbt-lwm][] (**_L_**ight **_W_**eight **_M_**arkup) is an [SBT][]
 plugin that converts lightweight markup documents to HTML. It currently
 supports [Textile][] and [Markdown][].
 
@@ -18,15 +18,6 @@ so it supports converting:
 * Plain text, wrapped in `<pre>` and `</pre>` tags and surrounded by
   HTML goodness.
 
-# Notes
-
-Versions of this plugin _prior_ to 0.3 _only_ work with SBT 0.10.x. Versions
-of this plugin from 0.3 on only work with SBT 0.11.1 and 0.12.x. Versions
-from 0.4 onward only work with SBT 0.13.x and better.
-
-If you're using SBT 0.7, there's an older version (with fewer features and a
-different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.html).
-
 # Using the Plugin
 
 ## Getting the Plugin
@@ -34,7 +25,11 @@ different variable syntax) [here](http://software.clapper.org/sbt-plugins/lwm.ht
 Within your SBT project, create `project/plugins.sbt` (if it
 doesn't already exist) and add the following:
 
-    addSbtPlugin("org.clapper" % "sbt-lwm" % "0.4.0")
+```scala
+addSbtPlugin("org.clapper" % "sbt-lwm" % "1.0.0")
+```
+
+The plugin is cross-built for both SBT 0.13.x and 1.0.x.
 
 # Settings and Tasks
 
@@ -44,31 +39,29 @@ The plugin provides the following settings and tasks.
 `sources`). Of course, that's not always possible. To be sure you're updating
 the correct setting, *always* use the form:
 
-    settingName in LWM
+```scala
+settingName in LWM
+```
 
 For instance:
 
-    flatten in LWM := false
+```scala
+flatten in LWM := false
 
-    sources in LWM <++= baseDirectory map { d =>
-      (d / "src" * "*.txt").get ++
-      (d / "src" * "*.md").get ++
-      (d / "src" * "*.textile").get
-    }
+sources in LWM ++= (baseDirectory.value / "src" * "*.txt").get ++
+                   (baseDirectory.value / "src" * "*.md").get ++
+                   (baseDirectory.value / "src" * "*.textile").get
 
-    targetDirectory in LWM <<= baseDirectory(_ / "target")
+targetDirectory in LWM := baseDirectory.value / "target"
 
-    cssFile in LWM <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+cssFile in LWM := Some(baseDirectory.value / "src" / "style.css")
+```
 
 You can find the list of settings and tasks below.
 
 ## Settings
 
----
-
-**`sources`**
-
----
+### `sources`
 
 The lightweight markup files to be processed. [sbt-lwm][] uses a file's
 extension to recognize what kind of lightweight markup the file contains.
@@ -82,47 +75,50 @@ The supported extensions are:
 For instance, suppose you want to process all Markdown files within your
 "src" tree. You might set `sources` like this:
 
-    sources in LWM <++= baseDirectory map (d => (d / "src" ** "*.md").get)
+```scala
+sources in LWM ++= (baseDirectory.value / "src" * "*.md").get
+```
 
 If you also want to apply the edits to all files ending in ".markdown"
 (perhaps because you're not consistent in your extensions), use either:
 
-    sources in LWM <++= baseDirectory map (d => (d / "src" ** "*.md").get)
+```scala
+sources in LWM ++= (baseDirectory.value / "src" * "*.md").get
+sources in LWM ++= (baseDirectory.value / "src" * "*.markdown").get
+```
 
-    sources in LWM <++= baseDirectory map (d => (d / "src" ** "*.markdown").get)
-    
 or, more succinctly:
 
-    sources in LWM <++= baseDirectory { dir =>
-      (dir / "src" ** "*.md").get ++
-      (dir / "src" ** "*.markdown").get
-    }
+```scala
+sources in LWM ++= (baseDirectory.value / "src" * "*.markdown").get ++
+                   (baseDirectory.value / "src" * "*.md").get ++
+```
 
-### Front Matter
+#### Front Matter
 
 Each source file can optionally start with *front matter*, metadata about
 the document. The front matter must be separated from the rest of the
 document by a single line like this:
 
-    %%%
+```
+%%%
+```
     
 Front matter consists of one or more *item: value* pairs. Currently, the
 only supported item is *title*. To set an individual title for a document,
 specify the title in the front matter, like so:
 
-    title: A very cool user's guide
-    %%%
+```
+title: A very cool user's guide
+%%%
 
-    # My User's Guide
+# My User's Guide
+```
 
 If the *title* element is omitted, or if the front-matter is missing, then
 the resulting `<title>` HTML element will be empty.
 
----
-
-**`cssFile`**
-
----
+### `cssFile`
 
 A [cascading style sheet][] (CSS) file to include, inline, in the `<head>`
 section of the HTML document(s). This setting is a Scala `Option` pointing
@@ -130,28 +126,23 @@ to a file. By default, no CSS file is included in the generated HTML.
 
 Example:
 
-    cssFile in LWM <<= baseDirectory(d => Some(d / "src" / "style.css" ))
+```scala
+cssFile in LWM := Some(baseDirectory.value / "src" / "style.css")
+```
 
-
----
-
-**`targetDirectory`**
-
----
+### `targetDirectory`
 
 The directory to which to write the HTML versions of the source files.
 For example:
 
-    targetDirectory in LWM <<= baseDirectory(_ / "target")
+```scala
+targetDirectory in LWM := baseDirectory.value / "target"
+```
 
 See also `flatten`, below.
 
 
----
-
-**`flatten`**
-
----
+### `flatten`
 
 If `flatten` is `true`, then the processed HTML files will all be placed
 directly in `targetDirectory`; if there are name clashes, then some files
@@ -165,39 +156,47 @@ An example will help clarify. Consider the following file tree:
 Let's assume you're processing all the files ending in ".md", into the *target*
 directory.
 
-    sources in LWM <++= baseDirectory(d => (d / "src" ** "*.md").get)
+```scala
+sources in LWM ++= (baseDirectory.value / "src" * "*.md").get
+targetDirectory in LWM := baseDirectory.value / "target"
+```
 
-    targetDirectory in LWM <<= baseDirectory(_ / "target")
+With
     
-If you also set:
+```scala
+flatten in LWM := false
+```
 
-    flatten in LWM := true
+LWM will generate the following files:
 
-the edit operation will put all the HTML versions of all three files
-directly in the *target* directory.
+* `target/src/main/code/overview.html`
+* `target/src/main/code/design.html`
+* `target/src/doc/user-guide.html`
 
-If, instead, you set:
 
-    flatten in LWM := false
+However, if you set:
 
-you'll end up with the following edited versions:
+```scala
+flatten in LWM := true
+```
 
-* _target/src/main/code/overview.html_
-* _target/src/main/code/design.html_
-* _target/src/doc/user-guide.html_
+LWM will put all the HTML versions of all three files directly in the *target* 
+directory.
 
----
+* `target/overview.html`
+* `target/design.html`
+* `target/user-guide.html`
 
-**`encoding`**
-
----
+### `encoding`
 
 The encoding of the source file and, hence, the resulting HTML. Defaults
 to "UTF-8".
 
 e.g.:
 
+```scala
     encoding in LWM := "ISO-8859_1"
+```
 
 ## Tasks
 
@@ -207,6 +206,15 @@ e.g.:
 
 * `lwm:clean` deletes all generated HTML files. `lwm:clean`
   is also automatically linked into the main SBT `clean` task.
+
+### Hooking LWM into the compile phase
+
+If you want the run `lwm:transate` every time you run `compile`, just
+add this line to your `build.sbt`:
+
+```
+compile in Compile := ((compile in Compile) dependsOn (translate in LWM)).value
+```
 
 # Change log
 
@@ -218,7 +226,7 @@ Brian M. Clapper, [bmc@clapper.org][]
 
 # Copyright and License
 
-This software is copyright &copy; 2011 Brian M. Clapper and is
+This software is copyright &copy; 2011-2018 Brian M. Clapper and is
 released under a [BSD License][].
 
 # Patches
