@@ -23,7 +23,7 @@ For complete usage information, see the [sbt-lwm web site][].
 See 
 <http://opensource.org/licenses/bsd-license.php>
 
-Copyright &copy; 2011, Brian M. Clapper
+Copyright &copy; 2011-2018, Brian M. Clapper
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
